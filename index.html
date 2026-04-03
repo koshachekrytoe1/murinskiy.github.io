@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>муринскость переводость</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #3c4043;
+            --border: #dadce0;
+            --accent: #1a73e8;
+            --header-bg: #ffffff;
+            --copy-btn: #f1f3f4;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e8eaed;
+            --border: #3c4043;
+            --accent: #8ab4f8;
+            --header-bg: #1e1e1e;
+            --copy-btn: #2d2e31;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            font-family: 'Roboto', Arial, sans-serif;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background: var(--header-bg);
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 { font-size: 20px; font-weight: 500; margin: 0; }
+
+        .theme-toggle {
+            cursor: pointer;
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 40px auto;
+            gap: 15px;
+            padding: 0 20px;
+        }
+
+        .card {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            background: rgba(0,0,0,0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: var(--copy-btn);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover { background: var(--accent); color: white; }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 20px;
+            font-size: 22px;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+            background: transparent;
+            color: var(--text-main);
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        #output { background-color: rgba(0,0,0,0.02); }
+
+        @media (max-width: 768px) { .container { flex-direction: column; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>муринскость переводость</h1>
+    <button class="theme-toggle" id="themeBtn">☀️</button>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Русский
+            <button class="copy-btn" onclick="copyText('input')">Копировать</button>
+        </div>
+        <textarea id="input" placeholder="Введите текст..."></textarea>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Муринский
+            <button class="copy-btn" onclick="copyText('output')">Копировать</button>
+        </div>
+        <textarea id="output" readonly placeholder="Результат..."></textarea>
+    </div>
+</div>
+
+<script>
+    // --- ПЕРЕКЛЮЧАТЕЛЬ ТЕМ ---
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        themeBtn.innerText = isDark ? '☀️' : '🌙';
+    });
+
+    // --- ФУНКЦИЯ КОПИРОВАНИЯ ---
+    function copyText(id) {
+        const area = document.getElementById(id);
+        const btn = area.parentElement.querySelector('.copy-btn');
+        
+        if (!area.value) return;
+
+        navigator.clipboard.writeText(area.value).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = '✔';
+            setTimeout(() => { btn.innerText = originalText; }, 1000);
+        });
+    }
+
+    // --- ЛОГИКА ПЕРЕВОДА ---
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+
+    const dictionary = {
+        'я': 'ч', 'жена': 'жинка', 'сын': 'сыр', 'привет': 'пр', 'фог': 'фогость', 'чмо': 'чмошность', 'лох': 'лохость'
+    };
+
+    const vowels = "аеёиоуыэюя";
+    const verbEndings = ['ешь', 'ишь', 'ет', 'ит', 'ем', 'им', 'ете', 'ите', 'ут', 'ют', 'ат', 'ят', 'ть', 'лись', 'ться', 'тся'];
+
+    function isVerb(word) {
+        if (word.length > 4 && (word.endsWith('л') || word.endsWith('ла') || word.endsWith('ло') || word.endsWith('ли'))) return true;
+        return verbEndings.some(ending => word.endsWith(ending));
+    }
+
+    function translateWord(rawWord) {
+        let word = rawWord.toLowerCase().replace(/[.,!?;:]/g, '');
+        if (word.length === 0) return rawWord;
+        
+        let result = word;
+
+        if (dictionary[word]) {
+            result = dictionary[word];
+        } 
+        else if (isVerb(word) || word.length <= 3) {
+            result = word;
+        }
+        else {
+            if (word.endsWith('чик') || word.endsWith('ник')) result = word.slice(0, -3);
+            else if (word.endsWith('сеть') || word.endsWith('сет')) result = word.slice(0, word.endsWith('сеть') ? -4 : -3);
+            else if (word.endsWith('ик')) result = word.slice(0, -2);
+            else if (word.endsWith('ко')) {
+                result = word.slice(0, -2) + 'чность';
+            }
+            else if (word.endsWith('ка')) result = word.slice(0, -2);
+            
+            if (!result.endsWith('чность')) {
+                const last2 = result.slice(-2);
+                if (
+                    (vowels.includes(last2[0]) && last2[1] === 'й') ||
+                    (vowels.includes(last2[0]) && vowels.includes(last2[1]))
+                ) {
+                    result = result.slice(0, -2);
+                } 
+                else if (vowels.includes(result.slice(-1))) {
+                    result = result.slice(0, -1);
+                }
+                
+                result = result + 'ость';
+            }
+        }
+
+        if (rawWord[0] === rawWord[0].toUpperCase()) {
+            result = result.charAt(0).toUpperCase() + result.slice(1);
+        }
+        
+        let punc = rawWord.substring(rawWord.toLowerCase().indexOf(word) + word.length);
+        return result + punc;
+    }
+
+    input.addEventListener('input', () => {
+        const filteredValue = input.value.replace(/[^а-яёА-ЯЁ\s.,!?;:-]/g, '');
+        if (input.value !== filteredValue) input.value = filteredValue;
+
+        if (!input.value) { output.value = ''; return; }
+
+        const parts = input.value.split(/(\s+)/);
+        const translated = parts.map(part => {
+            if (/\s+/.test(part)) return part;
+            return translateWord(part);
+        });
+        output.value = translated.join('');
+    });
+</script>
+</body>
+</html>
